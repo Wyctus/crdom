@@ -176,4 +176,42 @@ describe("Document", function () {
       expect(children.map((c) => c.content)).to.be.deep.equal([content1, content2]);
     });
   });
+
+  describe("#moveBlockAfterBlock()", function () {
+    it("moves block after a sibling", function () {
+      const document = new Document<string>("My First Document", (c: string) => c);
+
+      const content1 = "First block";
+      const content2 = "Second block";
+      const content3 = "Third block";
+      const id1 = document.insertBlockAtRootEnd({ content: content1 });
+      document.insertBlockAtRootEnd({ content: content2 });
+      const id2 = document.insertBlockAtRootEnd({ content: content3 });
+
+      document.moveBlockAfterBlock(id1, id2);
+
+      const children = Array.from(document.blockIterator());
+
+      expect(children.map((c) => c.content)).to.be.deep.equal([content2, content3, content1]);
+    });
+  });
+
+  describe("#moveBlockBeforeBlock()", function () {
+    it("moves block before a sibling", function () {
+      const document = new Document<string>("My First Document", (c: string) => c);
+
+      const content1 = "First block";
+      const content2 = "Second block";
+      const content3 = "Third block";
+      const id1 = document.insertBlockAtRootEnd({ content: content1 });
+      document.insertBlockAtRootEnd({ content: content2 });
+      const id2 = document.insertBlockAtRootEnd({ content: content3 });
+
+      document.moveBlockBeforeBlock(id2, id1);
+
+      const children = Array.from(document.blockIterator());
+
+      expect(children.map((c) => c.content)).to.be.deep.equal([content3, content1, content2]);
+    });
+  });
 });

@@ -214,4 +214,68 @@ describe("Document", function () {
       expect(children.map((c) => c.content)).to.be.deep.equal([content3, content1, content2]);
     });
   });
+
+  describe("#toMarkup()", function () {
+    it("converts document consisting of singleline blocks", function () {
+      const document = new Document<string>("My First Document", (c: string) => c);
+
+      const content1 = "First block";
+      const content2 = "Second block";
+      const content3 = "Third block";
+      const content4 = "First subblock";
+      const content5 = "Second subblock";
+      const content6 = "Third subblock";
+
+      document.insertBlockAtRootEnd({ content: content1 });
+      const id1 = document.insertBlockAtRootEnd({ content: content2 });
+      const id2 = document.insertBlockAtRootEnd({ content: content3 });
+
+      document.insertSubblockAtBlockEnd(id1, { content: content4 });
+      document.insertSubblockAtBlockEnd(id1, { content: content5 });
+      document.insertSubblockAtBlockEnd(id2, { content: content6 });
+
+      const expectedString: string = `My First Document
+  First block
+  Second block
+    First subblock
+    Second subblock
+  Third block
+    Third subblock
+`;
+
+      expect(document.toMarkup()).to.be.equal(expectedString);
+    });
+
+    it("converts document consisting of multiline blocks", function () {
+      const document = new Document<string>("My First Document", (c: string) => c);
+
+      const content1 = "First block";
+      const content2 = "Second block\nis a little too long, so\nit spans multiple lines";
+      const content3 = "Third block";
+      const content4 = "First subblock";
+      const content5 = "Second subblock";
+      const content6 = "Third subblock";
+
+      document.insertBlockAtRootEnd({ content: content1 });
+      const id1 = document.insertBlockAtRootEnd({ content: content2 });
+      const id2 = document.insertBlockAtRootEnd({ content: content3 });
+
+      document.insertSubblockAtBlockEnd(id1, { content: content4 });
+      document.insertSubblockAtBlockEnd(id1, { content: content5 });
+      document.insertSubblockAtBlockEnd(id2, { content: content6 });
+
+      const expectedString: string = `My First Document
+  First block
+  Second block
+  is a little too long, so
+  it spans multiple lines
+    First subblock
+    Second subblock
+  Third block
+    Third subblock
+`;
+
+      expect(document.toMarkup()).to.be.equal(expectedString);
+    });
+  });
 });

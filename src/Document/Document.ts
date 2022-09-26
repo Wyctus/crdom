@@ -9,19 +9,35 @@ class Document<T> {
   private idMap: Map<string, TreeNode<Block<T>>>;
   readonly name: string;
   readonly hasher: (c: T) => string;
+  readonly stringifier?: (c: T) => string;
   private listenerMap: Map<string, Listener>;
 
-  constructor(name: string, hasher: (c: T) => string) {
+  constructor(name: string, hasher: (c: T) => string, stringifier?: (c: T) => string) {
     this.tree = new Tree<Block<T>>();
     this.idMap = new Map();
 
     this.name = name;
     this.hasher = hasher;
+    this.stringifier = stringifier;
     this.listenerMap = new Map();
   }
 
   toMarkup(): string {
-    return "";
+    const toString = this.stringifier ?? this.hasher;
+    let s: string = `${this.name}\n`;
+
+    for (let [node, level] of this.tree.DFS()) {
+      // Ignore the root, it contains no data in the document
+      if (node.data === undefined) {
+        continue;
+      }
+
+      const indent = "  ".repeat(level);
+      const contentWithNewlineIndentation = toString(node.data!.content).replace(/\n/g, `\n${indent}`);
+      s += `${indent}${contentWithNewlineIndentation}\n`;
+    }
+
+    return s;
   }
 
   private generateID(): string {
